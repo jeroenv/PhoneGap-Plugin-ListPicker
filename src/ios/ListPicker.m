@@ -39,6 +39,8 @@
     NSString *title = [options objectForKey:@"title"] ?: @" ";
     NSString *doneButtonLabel = [options objectForKey:@"doneButtonLabel"] ?: @"Done";
     NSString *cancelButtonLabel = [options objectForKey:@"cancelButtonLabel"] ?: @"Cancel";
+    NSString *clearButtonLabel = [options objectForKey:@"clearButtonLabel"] ?: @"Clear";
+
 
     // Hold items in an instance variable
     self.items = [options objectForKey:@"items"];
@@ -64,7 +66,14 @@
      UIBarButtonItem *labelButton = [[UIBarButtonItem alloc] initWithCustomView:label];
     [buttons addObject:labelButton];
     [buttons addObject:flexSpace];
-     
+    
+    // Create Clear button?
+    if([[options objectForKey:@"showClearButton"] boolValue]) {
+        UIBarButtonItem *clearButton = [[UIBarButtonItem alloc]initWithTitle:clearButtonLabel style:UIBarButtonItemStylePlain target:self action:@selector(didDismissWithClearButton:)];
+        [buttons addObject:clearButton];
+        [buttons addObject:flexSpace];
+    }
+
      // Create Done button
     UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithTitle:doneButtonLabel style:UIBarButtonItemStyleDone target:self action:@selector(didDismissWithDoneButton:)];
      [buttons addObject:doneButton];
@@ -208,6 +217,17 @@
     }
 }
 
+// Picker with toolbar dismissed with clear
+- (IBAction)didDismissWithClearButton:(id)sender {
+    // Check if device is iPad
+    if ( IS_IPAD ) {
+        // Emulate a new delegate method
+        [self dismissPopoverController:self.popoverController withButtonIndex:2 animated:YES];
+    } else {
+        [self dismissModalView:self.modalView withButtonIndex:2 animated:YES];
+    }
+}
+
 // Popover generic dismiss - iPad
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController {
 
@@ -264,13 +284,21 @@
     if (buttonIndex == 0) {
         // Create ERROR result if cancel was clicked
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-    }else {
+    }else{
+        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
+        if(buttonIndex == 1){
+            [resultDic setValue:@"selectedValue" forKey:@"action"];
+            [resultDic setValue:selectedValue forKey:@"value"];
+        }else{
+            [resultDic setValue:@"clear" forKey:@"action"];
+        }
+        
         // Create OK result otherwise
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:selectedValue];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultDic];
     }
-    
+        
     // Call appropriate javascript function
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];;
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 }
 
 //

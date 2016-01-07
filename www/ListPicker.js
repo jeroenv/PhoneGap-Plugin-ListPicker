@@ -19,7 +19,8 @@ ListPicker.prototype.showPicker = function(options, callback, error_callback) {
         items: options.items || {},
         style: options.style || 'default',
         doneButtonLabel: options.doneButtonLabel || 'Done',
-        cancelButtonLabel: options.cancelButtonLabel || 'Cancel'
+        cancelButtonLabel: options.cancelButtonLabel || 'Cancel',
+        showClearButton: options.showClearButton || false
     };
     
     var _callback = function() {
@@ -33,6 +34,8 @@ ListPicker.prototype.showPicker = function(options, callback, error_callback) {
           error_callback.apply(scope, arguments);
         }
     };
+
     cordova.exec(_callback, _error_callback, 'ListPicker', 'showPicker', [config]);
 }
+
 module.exports = new ListPicker();

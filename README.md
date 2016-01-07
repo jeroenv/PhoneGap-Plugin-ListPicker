@@ -18,7 +18,9 @@ Usage:
         ],
         selectedValue: "papaya",
         doneButtonLabel: "Done",
-        cancelButtonLabel: "Cancel"
+        cancelButtonLabel: "Cancel",
+        clearButtonLabel: "Clear",
+        showClearButton: true
     };
     
     // Show the picker

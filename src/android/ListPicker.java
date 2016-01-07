@@ -1,4 +1,4 @@
-package am.armsoft.plugins;
+package com.checkroom.plugins;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,17 +46,17 @@ public class ListPicker extends CordovaPlugin {
     // --------------------------------------------------------------------------
     // LOCAL METHODS
     // --------------------------------------------------------------------------
-    
+
     public void showPicker(final JSONArray data, final CallbackContext callbackContext) throws JSONException {
-    
+
         final CordovaInterface cordova = this.cordova;
-        
+
         final JSONObject options = data.getJSONObject(0);
         final String title = options.getString("title");
         final String selectedValue = options.getString("selectedValue");
         final JSONArray items = options.getJSONArray("items");
-        
-                
+        final boolean showClearButton = Boolean.parseBoolean(options.getString("showClearButton"));
+
         // Get the texts to display
         int index = -1;
         List<String> list = new ArrayList<String>();
@@ -64,17 +64,17 @@ public class ListPicker extends CordovaPlugin {
             JSONObject item = items.getJSONObject(i);
             list.add(item.getString("text"));
             if (selectedValue.equals(item.getString("value"))) {
-              index = i;
+                index = i;
             }
         }
         final CharSequence[] texts = list.toArray(new CharSequence[list.size()]);
         final int selectedIndex = index;
-        
+
         // Create and show the alert dialog
         Runnable runnable = new Runnable() {
             public void run() {
                 AlertDialog.Builder builder = new AlertDialog.Builder(cordova.getActivity());
-                
+
                 // Set dialog properties
                 builder.setTitle(title);
                 builder.setCancelable(true);
@@ -83,24 +83,53 @@ public class ListPicker extends CordovaPlugin {
                         try {
                             final JSONObject selectedItem = items.getJSONObject(index);
                             final String selectedValue = selectedItem.getString("value");
+                            JSONObject json = new JSONObject();
+                            json.put("action", "selectedValue");
+                            json.put("value", selectedValue);
+
                             dialog.dismiss();
-                            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, selectedValue));
-                        }
-                        catch (JSONException e) {
+                            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, json));
+                        } catch (JSONException e) {
                             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION));
                         }
                     }
                 });
-                builder.setOnCancelListener(new  DialogInterface.OnCancelListener() { 
-                    public void onCancel(DialogInterface dialog) { 
+
+                final DialogInterface.OnCancelListener cancelListener = new DialogInterface.OnCancelListener() {
+                    public void onCancel(DialogInterface dialog) {
                         callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR));
-                    } 
-                }); 
+                    }
+                };
+                builder.setOnCancelListener(cancelListener);
                 
+                // Set Cancel button
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        cancelListener.onCancel(dialog);
+                    }
+                });
+
+                if(showClearButton){
+                    //Set Clear button
+                    builder.setNeutralButton("Clear", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                JSONObject json = new JSONObject();
+                                json.put("action", "clear");
+
+                                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, json));
+                                dialog.dismiss();
+                            } catch (JSONException e) {
+                                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION));
+                            }
+                        }
+                    });
+                }
+
                 // Show alert dialog
                 AlertDialog alert = builder.create();
                 alert.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
-                alert.show(); 
+                alert.show();
             }
         };
         this.cordova.getActivity().runOnUiThread(runnable);
