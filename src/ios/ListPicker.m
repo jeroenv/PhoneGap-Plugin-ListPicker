@@ -56,7 +56,7 @@
     // Create title label aligned to center and appropriate spacers
     UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     [buttons addObject:flexSpace];
-    UILabel *label =[[UILabel alloc] initWithFrame:CGRectMake(0, 0, 180, 30)];
+    UILabel *label =[[UILabel alloc] initWithFrame:CGRectMake(0, 0, 150, 30)];
     [label setTextAlignment:NSTextAlignmentCenter];
     [label setTextColor: (NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_6_1) ? [UIColor blackColor] : [UIColor whiteColor]];
     [label setFont: [UIFont boldSystemFontOfSize:16]];
@@ -70,7 +70,6 @@
     if([[options objectForKey:@"showClearButton"] boolValue]) {
         UIBarButtonItem *clearButton = [[UIBarButtonItem alloc]initWithTitle:clearButtonLabel style:UIBarButtonItemStylePlain target:self action:@selector(didDismissWithClearButton:)];
         [buttons addObject:clearButton];
-        [buttons addObject:flexSpace];
     }
 
      // Create Done button
