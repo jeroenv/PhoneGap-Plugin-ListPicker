@@ -11,6 +11,7 @@
 @property (nonatomic, strong) UIPopoverController *popoverController;
 @property (nonatomic, strong) UIView *modalView;
 @property (nonatomic, strong) NSArray *items;
+@property (class, nonatomic, readonly) UIColor *myControlBackgroundColor;
 
 #pragma mark - Instance methods
 

@@ -18,6 +18,17 @@
 @synthesize modalView = _modalView;
 @synthesize items = _items;
 
++ (UIColor *)myControlBackgroundColor {
+    if (@available(iOS 13.0, *)) {
+        return [UIColor colorWithDynamicProvider:^UIColor * _Nonnull(UITraitCollection * _Nonnull traits) {
+            return traits.userInterfaceStyle == UIUserInterfaceStyleDark ?
+                [UIColor blackColor] :
+                [UIColor whiteColor];
+        }];
+    } else {
+        return [UIColor whiteColor];
+    }
+}
 
 - (int)getRowWithValue:(NSString * )name {
   for(int i = 0; i < [self.items count]; i++) {
@@ -90,8 +101,10 @@
    
     // Initialize the View that should conain the toolbar and picker
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.viewSize.width, 260)];
-    if(NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_6_1) {
-      [view setBackgroundColor:[UIColor colorWithRed:0.97 green:0.97 blue:0.97 alpha:1.0]];
+    if (@available(iOS 13.0, *)) {
+        [view setBackgroundColor: ListPicker.myControlBackgroundColor];
+    }else{
+        [view setBackgroundColor: [UIColor whiteColor]];
     }
     [view addSubview: toolbar];
     
